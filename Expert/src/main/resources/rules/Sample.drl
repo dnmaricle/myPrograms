@@ -1,0 +1,552 @@
+package com.sample
+ 
+import com.sample.DroolsTest.Message;
+//If the decision is bigger than 5, then we have our final conclusion!
+rule "TERMINATE"
+	when 
+		d : Decision(decisionNum >= 5)
+	then //Somehow get both decision texts?
+		System.out.println(d.getDecisionText());
+		System.out.println("End of Program");
+		System.exit(0);
+end
+
+rule "RULE_1-5"
+	when
+		q: Question( questionID == 1)
+		d : Decision()
+		cq : CurrentQuestion(currentQuestionID == 1)
+	then
+		d.setDecisionNum(q.getAnswerNum());
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_6-9"
+	when
+		q: Question( questionID == 2 && answerNum != 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 2)
+	then
+		d.setDecisionNum(d.getDecisionNum()+1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+//In case the user selects answer 2, instead of answer 1 or 3...we still wanna fire Q3
+rule "RULE_6-9a"
+	when
+		q: Question( questionID == 2 && answerNum == 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 2)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_10-13"
+	when
+		q: Question( questionID == 3 && answerNum == 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 3)
+	then
+		d.setDecisionNum(d.getDecisionNum()+1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+//In case user doesn't select answer #2 for question 3...we still want to fire Q4
+rule "RULE_10-13a"
+	when
+		q: Question( questionID == 3 && answerNum != 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 3)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_14-17"
+	when
+		q: Question( questionID == 4 && answerNum == 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 4)
+	then
+		d.setDecisionNum(d.getDecisionNum()+1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+//In case the user doesn't select ans #2, we still want to fire question 5 
+rule "RULE_14-17a"
+	when
+		q: Question( questionID == 4 && answerNum != 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 4)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_18-21"
+	when
+		q: Question( questionID == 5 && answerNum == 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 5)
+	then
+		d.setDecisionNum(d.getDecisionNum()+1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+//In case the user doesn't select ans #2 for question 5, we still wanna fire question 6
+rule "RULE_18-21a"
+	when
+		q: Question( questionID == 5 && answerNum != 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 5)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_22-25"
+	when
+		q: Question( questionID == 6 && answerNum == 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 6)
+	then
+		d.setDecisionNum(d.getDecisionNum() +1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+//In case user doesn't pick ans #2, we still want to fire question 7
+rule "RULE_22-25a"
+	when
+		q: Question( questionID == 6 && answerNum != 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 6)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_26-29"
+	when
+		q: Question( questionID == 7 && answerNum == 3)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 7)
+	then
+		d.setDecisionNum(d.getDecisionNum() + 1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+//If the user didn't select ans #3, we still want to fire question 8
+rule "RULE_26-29a"
+	when
+		q: Question( questionID == 7 && answerNum != 3)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 7)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_30"
+	when
+		q: Question( questionID == 8 && answerNum == 2)
+		d : Decision(decisionNum == 1)
+		cq : CurrentQuestion(currentQuestionID == 8)
+	then
+		d.setDecisionNum(d.getDecisionNum()+1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_31(Part 1)"
+	when
+		q: Question( questionID == 8 && answerNum == 2)
+		d : Decision(decisionNum == 2)
+		cq : CurrentQuestion(currentQuestionID == 8)
+	then
+		d.setDecisionNum(d.getDecisionNum() + 1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_31(Part 2)"
+	when
+		q: Question( questionID == 8 && answerNum == 1)
+		d : Decision(decisionNum == 1)
+		cq : CurrentQuestion(currentQuestionID == 8)
+	then
+		d.setDecisionNum(d.getDecisionNum() + 2);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_32 (Part 1)"
+	when
+		q: Question( questionID == 8 && answerNum == 2)
+		d : Decision(decisionNum == 3)
+		cq : CurrentQuestion(currentQuestionID == 8)
+	then
+		d.setDecisionNum(d.getDecisionNum() + 1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_32 (Part 2)"
+	when
+		q: Question( questionID == 8 && answerNum == 1)
+		d : Decision(decisionNum == 2)
+		cq : CurrentQuestion(currentQuestionID == 8)
+	then
+		d.setDecisionNum(d.getDecisionNum() + 2);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_33 (Part 1)"
+	when
+		q: Question( questionID == 8 && answerNum == 2)
+		d : Decision(decisionNum == 4)
+		cq : CurrentQuestion(currentQuestionID == 8)
+	then
+		d.setDecisionNum(d.getDecisionNum() + 1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_33 (Part 2)"
+	when
+		q: Question( questionID == 8 && answerNum == 1)
+		d : Decision(decisionNum == 3)
+		cq : CurrentQuestion(currentQuestionID == 8)
+	then
+		d.setDecisionNum(d.getDecisionNum() + 2);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+//What about answering ans #3 for question 8 yo? Dawg, we still wanna fire question 9!
+rule "RULE_30-33a"
+	when
+		q: Question( questionID == 8 && answerNum == 3)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 8)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_34-37"
+	when
+		q: Question( questionID == 9 && answerNum == 3)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 9)
+	then
+		d.setDecisionNum(d.getDecisionNum() + 1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+//If we pick something other than 3 for question 9, we still wanna fire question 10
+rule "RULE_34-37a"
+	when
+		q: Question( questionID == 9 && answerNum != 3)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 9)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_38 - 41"
+	when
+		q: Question( questionID == 10 && answerNum != 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 10)
+	then
+		d.setDecisionNum(d.getDecisionNum() + 1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+//If we do pick ans 2 for question 10, we still wanna ask question 11
+rule "RULE_38 - 41a"
+	when
+		q: Question( questionID == 10 && answerNum == 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 10)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_42 - 45"
+	when
+		q: Question( questionID == 11 && answerNum == 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 11)
+	then
+		d.setDecisionNum(d.getDecisionNum() + 1);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+//If we don't pick ans 2 for question 11, we still wanna fire question 12
+rule "RULE_42 - 45a"
+	when
+		q: Question( questionID == 11 && answerNum != 2)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 11)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_46"
+	when
+		q: Question( questionID == 12 && answerNum == 1)
+		d : Decision(decisionNum == 3)
+		cq : CurrentQuestion(currentQuestionID == 12)
+	then
+		d.setDecisionNum(28);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_47"
+	when
+		q: Question( questionID == 12 && answerNum == 1)
+		d : Decision(decisionNum == 4)
+		cq : CurrentQuestion(currentQuestionID == 12)
+	then
+		d.setDecisionNum(38);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_48"
+	when
+		q: Question( questionID == 12 && answerNum == 1)
+		d : Decision(decisionNum == 1)
+		cq : CurrentQuestion(currentQuestionID == 12)
+	then
+		d.setDecisionNum(11);
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+//What if we answer something other than ans #1 for question 12? Still fire question #13
+rule "RULE_46-48a"
+	when
+		q: Question( questionID == 12 && answerNum != 1)
+		d : Decision(decisionNum <= 4)
+		cq : CurrentQuestion(currentQuestionID == 12)
+	then
+		Question newQuestion = new Question(q.getQuestionID() + 1);
+		cq.setCurrentQuestionID(newQuestion.getQuestionID());
+		update(d);
+		update(cq);
+		insert(newQuestion);
+end
+
+rule "RULE_49"
+	when
+		q: Question( questionID == 13 && answerNum == 3)
+		d : Decision(decisionNum == 3)
+		cq : CurrentQuestion(currentQuestionID == 13)
+	then
+		d.setDecisionNum(28);
+		update(d);
+end
+
+rule "RULE_50"
+	when
+		q: Question( questionID == 13 && answerNum == 3)
+		d : Decision(decisionNum == 4)
+		cq : CurrentQuestion(currentQuestionID == 13)
+	then
+		d.setDecisionNum(38);
+		update(d);
+end
+
+rule "RULE_51"
+	when
+		q: Question( (questionID == 8 && answerNum == 1) || (questionID == 6 && answerNum == 3))
+		d : Decision(decisionNum == 2)
+	then
+		d.setDecisionNum(21);
+		update(d);
+end
+
+rule "RULE_52"
+	when
+		q: Question( (questionID == 5 && answerNum == 2) || (questionID == 5 && answerNum == 3))
+		d : Decision(decisionNum == 2)
+	then
+		d.setDecisionNum(22);
+		update(d);
+end
+
+rule "RULE_53"
+	when
+		q: Question( (questionID == 3 && answerNum == 3) || (questionID == 9 && answerNum == 3))
+		d : Decision(decisionNum == 2)
+	then
+		d.setDecisionNum(23);
+		update(d);
+end
+
+rule "RULE_54"
+	when
+		q: Question( (questionID == 8 && answerNum == 1) || (questionID == 6 && answerNum == 3))
+		d : Decision(decisionNum == 3)
+	then
+		d.setDecisionNum(31);
+		update(d);
+end
+
+rule "RULE_55"
+	when
+		q: Question( (questionID == 5 && answerNum == 2) || (questionID == 5 && answerNum == 3))
+		d : Decision(decisionNum == 3)
+	then
+		d.setDecisionNum(32);
+		update(d);
+end
+
+rule "RULE_56"
+	when
+		q: Question( (questionID == 3 && answerNum == 3) || (questionID == 9 && answerNum == 3))
+		d : Decision(decisionNum == 4)
+	then
+		d.setDecisionNum(33);
+		update(d);
+end
+
+rule "RULE_57"
+	when
+		q: Question( (questionID == 8 && answerNum == 1) || (questionID == 6 && answerNum == 3))
+		d : Decision(decisionNum == 4)
+	then
+		d.setDecisionNum(41);
+		update(d);
+end
+
+rule "RULE_58"
+	when
+		q: Question( (questionID == 5 && answerNum == 2) || (questionID == 5 && answerNum == 3))
+		d : Decision(decisionNum == 4)
+	then
+		d.setDecisionNum(42);
+		update(d);
+end
+
+rule "RULE_59"
+	when
+		q: Question( (questionID == 3 && answerNum == 3) || (questionID == 9 && answerNum == 3))
+		d : Decision(decisionNum == 4)
+	then
+		d.setDecisionNum(43);
+		update(d);
+end
+
+rule "RULE_60"
+	when
+		q: Question( ((questionID == 2 && answerNum == 1) && (questionID == 3 && answerNum == 1)) || ((questionID == 2 && answerNum == 3) && (questionID == 3 && answerNum == 3)) )
+		d : Decision()
+	then
+		d.setDecisionNum(99);
+		update(d);
+end
+
+rule "RULE_61"
+	when
+		q: Question((questionID == 3 && answerNum == 3) || (questionID == 4 && answerNum == 1) || (questionID == 5 && answerNum == 3) || (questionID == 11 && answerNum == 3) || ((questionID == 4 && answerNum == 2) && (questionID == 7 && answerNum == 1)) || (questionID == 9 && answerNum == 1) )
+		d : Decision()
+	then
+		d.setDecisionNum(5);
+		update(d);
+end

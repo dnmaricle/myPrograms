@@ -1,0 +1,163 @@
+/*
+	Example: A tip calculation FIS (fuzzy inference system)
+	Calculates tip based on 'servie' and 'food'
+
+	If you want to about this example (and fuzzy logic), please 
+	read Matlab's tutorial on fuzzy logic toolbox 
+	http://www.mathworks.com/access/helpdesk/help/pdf_doc/fuzzy/fuzzy.pdf
+
+									Pablo Cingolani 
+									pcingola@users.sourceforge.net
+*/
+
+FUNCTION_BLOCK Likelihood_of_Conversion	// Block definition (there may be more than one block per file)
+
+VAR_INPUT				// Define input variables
+	levelOfAssertionExhibitedByBuchan : REAL;
+	levelOfPerceivedAbilityByStudent : REAL;
+	levelOfDesireToCompleteDegree : REAL;
+END_VAR
+
+VAR_OUTPUT				// Define output variable
+	likelihoodOfConversion : REAL;
+END_VAR
+
+FUZZIFY levelOfAssertionExhibitedByBuchan			// Fuzzify input variable 'levelOfAssertionExhibitedByBuchan': {'weak', 'okay' , 'kindaConvincing', 'reallyConvincing', 'extremelyConvincing' , 'irresistiblyConvincing'}
+	TERM weak := (0, 0) (7.5, 1) (10, 1) (10, 0) ;
+	TERM okay := (10, 0) (15, 1) (30, 1) (30, 0);
+	TERM kindaConvincing := (20, 0) (35, 1) (50, 1) (50, 0);
+	TERM reallyConvincing := (40, 0) (50, 1) (60, 1) (60, 0);
+	TERM extremelyConvincing := (55, 0) (75, 1) (87, 1) (87, 0); 
+	TERM irresistiblyConvincing := (85, 0) (90, 1) (100, 1);
+END_FUZZIFY
+
+FUZZIFY levelOfPerceivedAbilityByStudent			// Fuzzify input variable 'food': { 'rancid', 'delicious' }
+	TERM weak := (0, 1) (2, 0) ; 
+	TERM okay := (1.5, 0) (4, 1) (5, 1) (5, 0);
+	TERM decent := (4, 0) (5, 0.2) (6, 0.5) (7, 0.7) (8, 1) (9, 0.8) (9, 0);
+	TERM excellent := (8, 0) (9, 0.5) (9.5, 1);
+END_FUZZIFY
+
+FUZZIFY levelOfDesireToCompleteDegree			// Fuzzify input variable 'food': { 'rancid', 'delicious' }
+	TERM weak := (0, 1) (4, 0) ; 
+	TERM good := (1, 0) (4,1) (6,1) (9,0);
+	TERM excellent := (6, 0) (9, 1);
+END_FUZZIFY
+
+DEFUZZIFY likelihoodOfConversion			// Defzzzify output variable 'tip' : {'cheap', 'average', 'generous' }
+	TERM weak := (0,1) (15, 0.5) (35,0);
+	TERM may_consider := (30,0) (50,1) (50, 0.3) (55, 0);
+	TERM considering := (50,0) (75, 0.5) (85, 1) (90, 1) (95, 1) (95, 0);
+	TERM definitely := (90, 0) (92, 0.4) (95, 0.5) (97, 0.75) (98, 0.9) (99, 1) (100, 1) (100, 0);
+	METHOD : COG;		// Use 'Center Of Gravity' defuzzification method
+	DEFAULT := 0;		// Default value is 0 (if no rule activates defuzzifier)
+END_DEFUZZIFY
+
+RULEBLOCK No1
+	AND : MIN;			// Use 'min' for 'and' (also implicit use 'max' for 'or' to fulfill DeMorgan's Law)
+	ACT : MIN;			// Use 'min' activation method
+	ACCU : MAX;			// Use 'max' accumulation method
+
+	//IS WEAK level of assertion
+	RULE 1 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS weak;
+	RULE 2 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS may_consider;
+	RULE 3 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 4 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS weak;
+	RULE 5 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 6 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 7 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS weak;
+	RULE 8 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 9 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 10 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 11 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 12 : IF levelOfAssertionExhibitedByBuchan IS weak AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	
+	//IS OKAY level of assertion
+	RULE 13 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS weak;
+	RULE 14 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS may_consider;
+	RULE 15 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	
+	RULE 16 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS weak;
+	RULE 17 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 18 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 19 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS weak;
+	RULE 20 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 21 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 22 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 23 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 24 : IF levelOfAssertionExhibitedByBuchan IS okay AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	
+	//KINDA CONVINCING level of assertion
+	RULE 25 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 26 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS may_consider;
+	RULE 27 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	
+	RULE 28 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 29 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 30 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 31 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 32 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 33 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 34 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 35 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 36 : IF levelOfAssertionExhibitedByBuchan IS kindaConvincing AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	
+	//REALLY convincing level of assertion
+	RULE 25 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 26 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 27 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	
+	RULE 28 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 29 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 30 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 31 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 32 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 33 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 34 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 35 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 36 : IF levelOfAssertionExhibitedByBuchan IS reallyConvincing AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	
+	//EXTREMELY CONVINCING level of assertion
+	RULE 37 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS considering;
+	RULE 38 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 39 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS weak AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	
+	RULE 40 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS may_consider;
+	RULE 41 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 42 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS okay AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 43 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS considering;
+	RULE 44 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 45 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS decent AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	RULE 46 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS weak THEN likelihoodOfConversion IS considering;
+	RULE 47 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS good THEN likelihoodOfConversion IS considering;
+	RULE 48 : IF levelOfAssertionExhibitedByBuchan IS extremelyConvincing AND levelOfPerceivedAbilityByStudent IS excellent AND levelOfDesireToCompleteDegree IS excellent THEN likelihoodOfConversion IS definitely;
+	
+	
+	//irresistiblyConvincing level of assertion
+	RULE 49 : IF levelOfAssertionExhibitedByBuchan IS irresistiblyConvincing THEN likelihoodOfConversion IS definitely;
+	
+	
+	
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
+
